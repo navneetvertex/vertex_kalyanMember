@@ -1,0 +1,48 @@
+/* Import Bootstrap CSS */
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* Import Tailwind CSS */
+@import "tailwindcss";
+
+/* Custom global styles */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Layout stability */
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    /* Prevent background duplication and stretch appropriately */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1 0 auto;
+  }
+
+  
+
+  
+}
