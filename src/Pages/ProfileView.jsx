@@ -1,12 +1,48 @@
 import React from "react";
+import { useSelector } from 'react-redux';
 import { Printer, Download, User, MapPin, Phone, Mail, Calendar, CreditCard, Shield } from "lucide-react";
 import mainLogo from '../assets/images/mainlogo.png';
+import { useGetUserByIdQuery } from '../features/auth/authApi';
+import { selectCurrentUser } from '../features/auth/authSlice';
 
 export default function ProfileDocument() {
+  // Get current user from Redux state
+  const currentUser = useSelector(selectCurrentUser);
+  const userId = currentUser?._id;
+  
+  const { data: userData, isLoading, error } = useGetUserByIdQuery(userId, {
+    skip: !userId // Skip query if no userId
+  });
+  
+  const user = userData?.data?.user;
+  console.log("API Response:", userData);
+  console.log("User Data:", user);
+
+  if (isLoading) {
+    return (
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen py-8 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen py-8 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading profile data</p>
+          <p className="text-gray-600">{error.message || 'Please try again later'}</p>
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen py-8 px-4">
+    <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen py-2 px-2">
       {/* PAGE */}
-      <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
+      <div className=" mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
 
         {/* HEADER */}
         <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white p-8">
@@ -34,14 +70,14 @@ export default function ProfileDocument() {
             <div className="flex justify-between items-center text-sm">
               <div className="flex items-center gap-2 text-blue-700 font-semibold">
                 <User size={16} />
-                <span>User ID: 01001945</span>
+                <span>User ID: {user?.user_id || 'N/A'}</span>
               </div>
               <div className="px-6 py-2 bg-blue-600 text-white rounded-full font-semibold text-sm shadow-lg">
                 Membership Application
               </div>
               <div className="flex items-center gap-2 text-blue-700 font-semibold">
                 <CreditCard size={16} />
-                <span>Account No: 960275514342</span>
+                <span>Account No: {user?.account_number || 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -79,9 +115,19 @@ export default function ProfileDocument() {
               <div className="bg-white border-2 border-gray-300 rounded-xl p-4 shadow-sm">
                 <h4 className="text-center font-semibold text-gray-700 mb-4">SELF PHOTO</h4>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg h-48 flex items-center justify-center bg-gray-50">
-                  <div className="text-center text-gray-500">
-                    <User size={48} className="mx-auto mb-2 opacity-50" />
-                    <p className="text-xs font-medium">Passport Size Photo</p>
+                  <div className="text-center text-gray-500 mt-2">
+                    { user?.profile_image ? (
+                      <img 
+                        src={user.profile_image} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="text-center text-blue-400">
+                        <User size={64} className="mx-auto mb-3 opacity-60" />
+                        <p className="text-xs font-medium text-blue-600">Passport Size</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -102,13 +148,30 @@ export default function ProfileDocument() {
                 {/* PHOTO SECTION */}
                 <div className="lg:col-span-1">
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-200 rounded-2xl p-6 text-center shadow-inner">
-                    <h4 className="font-bold text-blue-800 mb-4 text-sm uppercase tracking-wide">SELF PHOTO</h4>
-                    <div className="bg-white border-2 border-dashed border-blue-300 rounded-xl h-48 w-full flex items-center justify-center shadow-sm">
-                      <div className="text-center text-blue-400">
-                        <User size={64} className="mx-auto mb-3 opacity-60" />
-                        <p className="text-xs font-medium text-blue-600">Passport Size</p>
-                        <p className="text-xs text-blue-500">Photo Required</p>
-                      </div>
+                    <h4 className="font-bold text-blue-800 mb-4 text-sm uppercase tracking-wide">PROFILE PHOTO</h4>
+                    <div className="bg-white border-2 border-blue-300 rounded-xl aspect-[3/4] w-full flex items-center justify-center shadow-sm overflow-hidden">
+                      {user?.profile_image ? (
+                        <img 
+                          src={user.profile_image} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = user.profile_image;
+                            link.download = 'Profile_Photo.jpg';
+                            link.target = '_blank';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                        />
+                      ) : (
+                        <div className="text-center text-blue-400">
+                          <User size={64} className="mx-auto mb-3 opacity-60" />
+                          <p className="text-xs font-medium text-blue-600">Profile Photo</p>
+                          <p className="text-xs text-blue-500">Not Uploaded</p>
+                        </div>
+                      )}
                     </div>
                     <div className="mt-4 text-xs text-blue-700 bg-blue-50 p-2 rounded-lg">
                       <p className="font-medium">Photo Guidelines:</p>
@@ -122,19 +185,109 @@ export default function ProfileDocument() {
                 {/* PERSONAL DETAILS */}
                 <div className="lg:col-span-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DetailCard icon={<User size={16} />} label="Full Name" value="Navneet Yadav" />
-                    <DetailCard icon={<User size={16} />} label="Guardian Name" value="Mayank (Brother)" />
-                    <DetailCard icon={<Calendar size={16} />} label="Date of Birth" value="16-07-1997 (Age: 28)" />
-                    <DetailCard icon={<User size={16} />} label="Gender" value="Male" />
-                    <DetailCard icon={<User size={16} />} label="Marital Status" value="Single" />
-                    <DetailCard icon={<CreditCard size={16} />} label="Occupation" value="Software Developer" />
-                    <DetailCard icon={<Shield size={16} />} label="Aadhar Number" value="123456789567" />
-                    <DetailCard icon={<Phone size={16} />} label="Mobile Number" value="6396465590" />
-                    <DetailCard icon={<Mail size={16} />} label="Email ID" value="yamini12@gmail.com" />
-                    <DetailCard icon={<MapPin size={16} />} label="Location" value="Delhi, East Delhi, Mayur Vihar" />
+                    <DetailCard icon={<User size={16} />} label="Full Name" value={user?.name || "N/A"} />
+                    <DetailCard icon={<User size={16} />} label="Guardian Name" value={user?.guardian_name || "N/A"} />
+                    <DetailCard icon={<Calendar size={16} />} label="Date of Birth" value={user?.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : "N/A"} />
+                    <DetailCard icon={<User size={16} />} label="Gender" value={user?.gender || "N/A"} />
+                    <DetailCard icon={<User size={16} />} label="Marital Status" value={user?.maritial_status || "N/A"} />
+                    <DetailCard icon={<CreditCard size={16} />} label="Occupation" value={user?.occupation || "N/A"} />
+                    <DetailCard icon={<Shield size={16} />} label="Aadhar Number" value={user?.kyc?.aadhar || "N/A"} />
+                    <DetailCard icon={<Phone size={16} />} label="Mobile Number" value={user?.mobile_number || "N/A"} />
+                    <DetailCard icon={<Mail size={16} />} label="Email ID" value={user?.email_id || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="State" value={user?.state_info?.name || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="District" value={user?.district_info?.name || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Area" value={user?.area_info?.name || "N/A"} />
+                    <DetailCard icon={<Shield size={16} />} label="Disability Status" value={user?.is_divyang ? "Yes" : "No"} />
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* ADDRESS INFORMATION */}
+          <div className="bg-white border border-gray-200 rounded-xl shadow-lg mb-8 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-600 to-green-700 p-6">
+              <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                <MapPin size={24} />
+                Address Information
+              </h3>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              {/* Present Address */}
+              {user?.addresses?.filter(addr => addr.type === 'Present').map((address, index) => (
+                <div key={index} className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                  <h4 className="font-bold text-blue-800 mb-4 flex items-center gap-2">
+                    <MapPin size={20} />
+                    Present Address {index > 0 ? `${index + 1}` : ''}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <DetailCard icon={<MapPin size={16} />} label="State" value={address.state || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="District" value={address.district || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Area" value={address.area || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Pincode" value={address.pincode || "N/A"} />
+                  </div>
+                  {address.address && (
+                    <div className="mt-4 bg-white rounded-lg p-4 border border-blue-200">
+                      <p className="text-sm font-medium text-blue-700 mb-1">Full Address</p>
+                      <p className="text-gray-800">{address.address}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Office Address */}
+              {user?.addresses?.filter(addr => addr.type === 'Office').map((address, index) => (
+                <div key={index} className="bg-orange-50 border border-orange-200 rounded-xl p-6">
+                  <h4 className="font-bold text-orange-800 mb-4 flex items-center gap-2">
+                    <MapPin size={20} />
+                    Office Address {index > 0 ? `${index + 1}` : ''}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <DetailCard icon={<MapPin size={16} />} label="State" value={address.state || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="District" value={address.district || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Area" value={address.area || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Pincode" value={address.pincode || "N/A"} />
+                  </div>
+                  {address.address && (
+                    <div className="mt-4 bg-white rounded-lg p-4 border border-orange-200">
+                      <p className="text-sm font-medium text-orange-700 mb-1">Full Address</p>
+                      <p className="text-gray-800">{address.address}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Permanent Address */}
+              {user?.addresses?.filter(addr => addr.type === 'Permanent').map((address, index) => (
+                <div key={index} className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                  <h4 className="font-bold text-purple-800 mb-4 flex items-center gap-2">
+                    <MapPin size={20} />
+                    Permanent Address {index > 0 ? `${index + 1}` : ''}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <DetailCard icon={<MapPin size={16} />} label="State" value={address.state || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="District" value={address.district || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Area" value={address.area || "N/A"} />
+                    <DetailCard icon={<MapPin size={16} />} label="Pincode" value={address.pincode || "N/A"} />
+                  </div>
+                  {address.address && (
+                    <div className="mt-4 bg-white rounded-lg p-4 border border-purple-200">
+                      <p className="text-sm font-medium text-purple-700 mb-1">Full Address</p>
+                      <p className="text-gray-800">{address.address}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* No Address Message */}
+              {(!user?.addresses || user.addresses.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  <MapPin size={48} className="mx-auto mb-4 opacity-50" />
+                  <p className="text-lg font-medium">No Address Information Available</p>
+                  <p className="text-sm">Address details will appear here once updated</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -201,11 +354,56 @@ export default function ProfileDocument() {
               </h3>
             </div>
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <DocumentBox label="Aadhar Front" />
-                <DocumentBox label="Aadhar Back" />
-                <DocumentBox label="PAN Card" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <DocumentBox 
+                  label="Aadhar Front" 
+                  image={user?.kyc?.aadhar_front}
+                />
+                <DocumentBox 
+                  label="Aadhar Back" 
+                  image={user?.kyc?.aadhar_back}
+                />
+                <DocumentBox 
+                  label="PAN Card" 
+                  image={user?.kyc?.pan_front}
+                />
+                <DocumentBox 
+                  label="Passbook/Cheque" 
+                  image={user?.passbook_cheque}
+                />
+                <DocumentBox 
+                  label="Signature" 
+                  image={user?.signature}
+                />
+                {user?.is_divyang && (
+                  <DocumentBox 
+                    label="Disability Certificate" 
+                    image={user?.disability_image}
+                  />
+                )}
               </div>
+              
+              {/* Disability Information */}
+              {user?.is_divyang && (
+                <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                  <h4 className="font-bold text-yellow-800 mb-3 flex items-center gap-2">
+                    <Shield size={20} />
+                    Disability Information
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white rounded-lg p-4 border border-yellow-200">
+                      <p className="text-sm font-medium text-yellow-700 mb-1">Status</p>
+                      <p className="text-lg font-semibold text-yellow-800">Person with Disability</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-yellow-200">
+                      <p className="text-sm font-medium text-yellow-700 mb-1">Certificate</p>
+                      <p className="text-sm text-yellow-800">
+                        {user?.disability_image ? 'Certificate Uploaded' : 'Certificate Pending'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -244,12 +442,51 @@ function DetailCard({ icon, label, value }) {
   );
 }
 
-function DocumentBox({ label }) {
+function DocumentBox({ label, image }) {
+  const handleDownload = () => {
+    if (image) {
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `${label.replace(/\s+/g, '_')}.jpg`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-dashed border-blue-300 rounded-xl h-40 flex flex-col items-center justify-center hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 transition-all duration-300 group">
-      <CreditCard size={32} className="text-blue-400 mb-3 group-hover:text-blue-600 transition-colors" />
-      <span className="text-sm font-semibold text-blue-700 group-hover:text-blue-800 transition-colors">{label}</span>
-      <span className="text-xs text-blue-500 mt-1">Upload Required</span>
+    <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group">
+      <div className="p-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <h6 className="text-sm font-semibold text-blue-800 mb-0 flex items-center gap-2">
+          <CreditCard size={16} />
+          {label}
+        </h6>
+      </div>
+      <div className="aspect-[4/3] relative bg-gray-50">
+        {image ? (
+          <>
+            <img 
+              src={image} 
+              alt={label} 
+              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
+              onClick={handleDownload}
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <div className="bg-white rounded-full p-2 shadow-lg">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+            <CreditCard size={32} className="mb-2" />
+            <span className="text-xs font-medium">Not Uploaded</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

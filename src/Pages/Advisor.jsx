@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   UserPlus,
@@ -17,6 +18,7 @@ import advisorRequestImg from '../assets/images/advisor_request.png';
 import termsDoc from '../assets/documents/terms-and-conditions.pdf';
 
 export default function AdvisorRequest() {
+  const navigate = useNavigate();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showSahyogAlert, setShowSahyogAlert] = useState(false);
@@ -36,134 +38,102 @@ export default function AdvisorRequest() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-2 sm:p-6">
       {/* ================= HEADER ================= */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">
+          <h1 className="text-lg sm:text-xl font-bold text-gray-800">
             Advisor Request
           </h1>
           <p className="text-gray-600 text-sm mt-1">
             Request professional financial guidance
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-500">
-            Member / Advisor Request
-          </p>
-        </div>
+       
       </div>
 
       {/* ================= MAIN CARD ================= */}
-      <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-3 sm:p-6 lg:p-8 border border-gray-100">
         {/* ================= REQUEST FORM ================= */}
         {!isAlreadyRequested && !isAdvisorAccount && (
           <div className="flex flex-col items-center text-center">
-            <div className="relative w-80 h-64 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-8 overflow-hidden shadow-lg">
+            <div className="relative w-full max-w-xs sm:w-80 h-48 sm:h-64 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-6 sm:mb-8 overflow-hidden shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-500/20"></div>
-              <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
+              <div className="relative z-10 w-full h-full flex items-center justify-center p-4 sm:p-6">
                 <img
                   src={advisorRequestImg}
                   className="max-w-full max-h-full object-contain drop-shadow-lg"
                   alt="Advisor Request"
                 />
               </div>
-              <div className="absolute top-4 right-4 w-8 h-8 bg-white/30 rounded-full"></div>
-              <div className="absolute bottom-6 left-6 w-6 h-6 bg-white/20 rounded-full"></div>
+              <div className="absolute top-4 right-4 w-6 sm:w-8 h-6 sm:h-8 bg-white/30 rounded-full"></div>
+              <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 w-4 sm:w-6 h-4 sm:h-6 bg-white/20 rounded-full"></div>
             </div>
 
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 rounded-full ">
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 px-4">
               Request for Advisor
             </h2>
-            <p className="text-gray-600 mb-8 max-w-md">
+            <p className="text-gray-600 mb-6 sm:mb-8 max-w-md px-4 text-sm sm:text-base">
               Get personalized financial guidance from our certified advisors to help you make informed decisions.
             </p>
 
-            {/* ENHANCED TERMS CARD */}
-            <div className="w-full max-w-2xl border-2 border-blue-200 rounded-2xl bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6 shadow-lg mb-8">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-start gap-4 text-left flex-1">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <BookOpen className="text-blue-600" size={20} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-800 mb-1">
-                      Terms and Conditions
-                    </p>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Please review our terms before proceeding with your advisor request.
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setShowTerms(true)}
-                        className="text-blue-600 font-medium text-sm hover:text-blue-700 flex items-center gap-1"
-                      >
-                        <FileText size={14} />
-                        Read Document
-                      </button>
-                      <a
-                        href={termsDoc}
-                        download
-                        className="text-green-600 font-medium text-sm hover:text-green-700 flex items-center gap-1"
-                      >
-                        <Download size={14} />
-                        Download PDF
-                      </a>
-                    </div>
-                  </div>
+            {/* PROFESSIONAL TERMS SECTION */}
+            <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-4 sm:mb-6 pb-4 border-b border-gray-100">
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="text-blue-600" size={16} />
                 </div>
-
-                <div className="flex flex-col items-center gap-4">
-                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full max-w-sm">
-                    <label className="flex items-center gap-4 cursor-pointer group">
-                      <div className="relative flex-shrink-0">
-                        <input
-                          type="checkbox"
-                          checked={termsAccepted}
-                          onChange={(e) => setTermsAccepted(e.target.checked)}
-                          className="sr-only"
-                        />
-                        <div className={`w-6 h-6 rounded-lg border-2 transition-all duration-200 flex items-center justify-center
-                          ${
-                            termsAccepted
-                              ? 'bg-blue-600 border-blue-600'
-                              : 'border-gray-300 hover:border-blue-400'
-                          }`}
-                        >
-                          {termsAccepted && (
-                            <CheckCircle 
-                              size={16} 
-                              className="text-white"
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <span className="font-semibold text-gray-800 block">
-                          I Accept Terms & Conditions
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          Required to proceed with request
-                        </span>
-                      </div>
-                    </label>
-                  </div>
-                  
-                  {termsAccepted && (
-                    <div className="flex items-center gap-2 text-green-600 bg-green-50 px-4 py-2 rounded-full border border-green-200">
-                      <CheckCircle size={18} />
-                      <span className="font-medium">Terms Accepted Successfully</span>
-                    </div>
-                  )}
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Terms and Conditions</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Please review before proceeding</p>
                 </div>
               </div>
 
-              {!termsAccepted && (
-                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-sm text-amber-700 flex items-center justify-center gap-2">
-                    <Lock size={16} />
-                    Please accept terms and conditions to proceed
-                  </p>
+              {/* Acceptance Checkbox */}
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-6 mb-4 sm:mb-6">
+                <label className="flex items-start gap-4 sm:gap-6 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer flex-shrink-0 mt-0.5"
+                  />
+                  <span className="font-medium text-gray-900 text-sm sm:text-base leading-relaxed ml-2 sm:ml-4">
+                    I Accept the Terms and Conditions. By checking this box, I confirm that I have read, understood, and agree to be bound by the terms and conditions.
+                  </span>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col items-center gap-2 sm:gap-3 mb-4">
+                <button
+                  onClick={() => setShowTerms(true)}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium text-sm min-w-[200px] max-w-xs w-auto"
+                >
+                  <FileText size={16} />
+                  <span>View Terms & Conditions</span>
+                </button>
+                {/* <a
+                  href={termsDoc}
+                  download
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm min-w-[200px] max-w-xs w-auto"
+                >
+                  <Download size={16} />
+                  <span>Download PDF</span>
+                </a> */}
+              </div>
+
+              {/* Status Messages */}
+              {termsAccepted ? (
+                <div className="flex items-center gap-2 text-green-700 bg-green-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-green-200">
+                  <CheckCircle size={16} className="flex-shrink-0" />
+                  <span className="font-medium text-sm sm:text-base">Terms accepted successfully</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-amber-200">
+                  <AlertTriangle size={16} className="flex-shrink-0" />
+                  <span className="font-medium text-sm sm:text-base">Please accept the terms and conditions to proceed</span>
                 </div>
               )}
             </div>
@@ -172,14 +142,14 @@ export default function AdvisorRequest() {
             <button
               onClick={handleRequestAdvisor}
               disabled={!termsAccepted}
-              className={`px-5 py-4 rounded font-bold text-lg flex items-center gap-3 transition-all duration-300 transform
+              className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 transition-all duration-300 transform
                 ${
                   termsAccepted
                     ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 hover:scale-105"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
             >
-              <UserPlus size={20} />
+              <UserPlus size={18} />
               Request Advisor
             </button>
           </div>
@@ -187,24 +157,24 @@ export default function AdvisorRequest() {
 
         {/* ================= REQUESTED STATUS ================= */}
         {isAlreadyRequested && !isAdvisorAccount && (
-          <div className="flex flex-col items-center text-center">
-            <div className="w-80 h-64 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center mb-8">
-              <div className="text-6xl text-yellow-500">
+          <div className="flex flex-col items-center text-center px-4">
+            <div className="w-full max-w-xs sm:w-80 h-48 sm:h-64 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center mb-6 sm:mb-8">
+              <div className="text-4xl sm:text-6xl text-yellow-500">
                 ⏳
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8 max-w-xl shadow-lg">
-              <h3 className="text-2xl font-bold flex items-center justify-center gap-3 text-blue-700 mb-4">
-                <Clock size={28} /> 
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 w-full max-w-xl shadow-lg">
+              <h3 className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-blue-700 mb-4">
+                <Clock size={24} /> 
                 Request Under Review
               </h3>
-              <p className="text-gray-700 text-lg">
+              <p className="text-gray-700 text-base sm:text-lg">
                 Your advisor request has been submitted successfully. Our team will review your application and notify you once approved.
               </p>
             </div>
 
-            <div className="mt-6 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold shadow-lg">
+            <div className="mt-6 px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold shadow-lg text-sm sm:text-base">
               ⏱ Status: Pending Approval
             </div>
           </div>
@@ -212,31 +182,31 @@ export default function AdvisorRequest() {
 
         {/* ================= ALREADY ADVISOR ================= */}
         {isAdvisorAccount && (
-          <div className="flex flex-col items-center text-center">
-            <div className="relative w-80 h-64 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl mb-8 overflow-hidden shadow-lg">
+          <div className="flex flex-col items-center text-center px-4">
+            <div className="relative w-full max-w-xs sm:w-80 h-48 sm:h-64 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl mb-6 sm:mb-8 overflow-hidden shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-500/20"></div>
-              <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
+              <div className="relative z-10 w-full h-full flex items-center justify-center p-4 sm:p-6">
                 <img
                   src={alreadyDoneImg}
                   className="max-w-full max-h-full object-contain drop-shadow-lg"
                   alt="Already Done"
                 />
               </div>
-              <div className="absolute top-4 right-4 w-8 h-8 bg-white/30 rounded-full"></div>
-              <div className="absolute bottom-6 left-6 w-6 h-6 bg-white/20 rounded-full"></div>
+              <div className="absolute top-4 right-4 w-6 sm:w-8 h-6 sm:h-8 bg-white/30 rounded-full"></div>
+              <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 w-4 sm:w-6 h-4 sm:h-6 bg-white/20 rounded-full"></div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-8 max-w-xl shadow-lg">
-              <h3 className="text-2xl font-bold flex items-center justify-center gap-3 text-green-700 mb-4">
-                <ShieldCheck size={28} /> 
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 sm:p-8 w-full max-w-xl shadow-lg">
+              <h3 className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-green-700 mb-4">
+                <ShieldCheck size={24} /> 
                 Advisor Account Active
               </h3>
-              <p className="text-gray-700 text-lg">
+              <p className="text-gray-700 text-base sm:text-lg">
                 Congratulations! You already have an active advisor account with full access to all advisory features.
               </p>
             </div>
 
-            <div className="mt-6 px-6 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg">
+            <div className="mt-6 px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg text-sm sm:text-base">
               ✓ Status: Active Advisor
             </div>
           </div>
@@ -293,8 +263,7 @@ export default function AdvisorRequest() {
               <button
                 onClick={() => {
                   setShowSahyogAlert(false);
-                  // Navigate to Sahyog Card application
-                  console.log('Navigate to Sahyog Card application');
+                  navigate('/sahyog-card');
                 }}
                 className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:shadow-lg transition-all"
               >
@@ -305,7 +274,7 @@ export default function AdvisorRequest() {
         </div>
       )}
 
-      {/* ================= ENHANCED TERMS MODAL ================= */}
+      {/* ================= TERMS MODAL ================= */}
       {showTerms && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl max-h-[90vh] flex flex-col">
@@ -427,14 +396,14 @@ export default function AdvisorRequest() {
 
             {/* Footer */}
             <div className="flex justify-between items-center px-6 py-4 bg-gray-50 rounded-b-2xl border-t">
-              <a
+              {/* <a
                 href={termsDoc}
                 download
                 className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               >
                 <Download size={16} />
                 Download PDF
-              </a>
+              </a> */}
               
               <div className="flex gap-3">
                 <button
