@@ -133,19 +133,29 @@ const bubbleStyles = `
     box-shadow: 0 8px 20px rgba(139, 69, 19, 0.5);
   }
 
-  .input-group-text, .form-control {
-    transition: all 0.3s ease;
+  .input-group {
+    border-radius: 0.375rem;
+    overflow: hidden;
   }
 
-  .input-group:focus-within .input-group-text {
-    background-color: rgba(139, 69, 19, 0.1) !important;
-    border-color: #8B4513 !important;
+  .input-group .input-group-text {
+    border-right: none !important;
   }
 
-  .input-group:focus-within .form-control {
-    background-color: rgba(255, 248, 220, 1) !important;
-    border-color: #8B4513 !important;
+  .input-group .form-control {
+    border-left: none !important;
+  }
+
+  .input-group:focus-within {
     box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.2);
+    border-radius: 0.375rem;
+  }
+
+  .input-group:focus-within .input-group-text,
+  .input-group:focus-within .form-control,
+  .input-group:focus-within .btn {
+    border-color: #8B4513 !important;
+    background-color: rgba(255, 248, 220, 1) !important;
   }
 
   .login-card {
@@ -181,22 +191,51 @@ export default function Login() {
   // Use dynamic viewport units and disable fixed background on small screens
   const isSmallScreen = typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setError('')
-
+    console.log('LOGIN BUTTON CLICKED')
+    
+    if (!userId || !password) {
+      setError('Please enter both User ID and Password')
+      return
+    }
+    
+    doLogin()
+  }
+  
+  const doLogin = async () => {
     try {
+      console.log('=== STARTING LOGIN PROCESS ===')
+      console.log('API call starting...')
+      
       const result = await login({ username: userId, password }).unwrap()
-
-      dispatch(setCredentials({
-        token: result.token || result.accessToken,
+      console.log('=== API CALL SUCCESS ===')
+      console.log('Full result:', result)
+      console.log('Token:', result.accessToken || result.token)
+      console.log('User:', result.user || result.data)
+      
+      const credentials = {
+        token: result.accessToken || result.token,
         user: result.user || result.data,
-      }))
-
-      const from = location.state?.from?.pathname || '/dashboard'
-      navigate(from, { replace: true })
+      }
+      
+      console.log('=== STORING CREDENTIALS ===')
+      console.log('Credentials to store:', credentials)
+      dispatch(setCredentials(credentials))
+      
+      console.log('=== CHECKING STORAGE ===')
+      console.log('Token in localStorage:', localStorage.getItem('token'))
+      console.log('User in localStorage:', localStorage.getItem('user'))
+      
+      console.log('=== NAVIGATING TO DASHBOARD ===')
+      window.location.href = '/dashboard'
+      
     } catch (err) {
-      setError(err?.data?.message || 'Failed to login. Please check your credentials.')
+      console.error('=== LOGIN FAILED ===')
+      console.error('Error:', err)
+      console.error('Error data:', err?.data)
+      console.error('Error message:', err?.message)
+      setError('Login failed. Please check your credentials.')
     }
   }
 
@@ -374,21 +413,21 @@ export default function Login() {
                       <div className="mb-3">
                         <label htmlFor="userId" className="form-label fw-semibold mb-2 d-flex align-items-center gap-2 small" style={{ color: '#8B4513' }}>
                           <User size={14} />
-                          User ID / Email
+                          User ID
                         </label>
                         <div className="input-group input-group-sm">
-                          <span className="input-group-text border-end-0" style={{ backgroundColor: '#FFF8DC', borderColor: '#D2691E' }}>
+                          <span className="input-group-text" style={{ backgroundColor: '#FFF8DC', borderColor: '#D2691E' }}>
                             <User size={16} style={{ color: '#8B4513' }} />
                           </span>
                           <input
                             type="text"
                             id="userId"
-                            className="form-control border-start-0"
-                            placeholder="Enter your User ID or Email"
+                            className="form-control"
+                            placeholder="Enter your User ID "
                             value={userId}
                             onChange={(e) => setUserId(e.target.value)}
                             required
-                            style={{ paddingLeft: '0.5rem', backgroundColor: '#FFF8DC', borderColor: '#D2691E' }}
+                            style={{ backgroundColor: '#FFF8DC', borderColor: '#D2691E' }}
                           />
                         </div>
                       </div>

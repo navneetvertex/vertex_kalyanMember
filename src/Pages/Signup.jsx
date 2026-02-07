@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useRegisterMutation } from '../features/auth/authApi';
 import { useGetStatesQuery, useGetDistrictsQuery, useGetAreasQuery } from '../features/location/locationApi';
-import { User, Mail, Lock, Phone, Calendar, MapPin, CreditCard, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { setCredentials } from '../features/auth/authSlice';
+import { User, Mail, Lock, Phone, Calendar, MapPin, CreditCard, AlertCircle, Eye, EyeOff, CheckCircle } from "lucide-react";
 import bgImage from '../assets/images/bg-auth-overlay.png';
 import mainLogo from '../assets/images/mainlogo.png';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [register, { isLoading }] = useRegisterMutation();
   const [error, setError] = useState('');
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [registrationData, setRegistrationData] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,7 +35,7 @@ export default function Signup() {
   const areas = areasData?.data || [];
 
   // Guardian relation options
-  const guardianRelations = ['Father', 'Mother', 'Spouse', 'Brother', 'Sister', 'Son', 'Daughter', 'Other'];
+  const guardianRelations = ['Father', 'Mother', 'Spouse', 'Brother', 'Sister', 'Son', 'Daughter', ];
 
   const isSmallScreen = typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
 
@@ -51,11 +56,36 @@ export default function Signup() {
       return;
     }
     try {
-      await register(formData).unwrap();
-      navigate('/login', { state: { message: 'Registration successful! Please login.' } });
+      const response = await register(formData).unwrap();
+      setRegistrationData(response);
+      setShowSuccessModal(true);
     } catch (err) {
       setError(err?.data?.message || 'Registration failed. Please try again.');
     }
+  };
+
+  const handleLoginRedirect = () => {
+    // Store credentials with complete user data structure
+    dispatch(setCredentials({
+      accessToken: registrationData.accessToken,
+      user: {
+        ...registrationData.user,
+        _id: registrationData.user._id,
+        mobile_number: formData.mobile_number,
+        email_id: formData.email_id,
+        gender: formData.gender,
+        date_of_birth: formData.date_of_birth,
+        guardian_name: formData.guardian_name,
+        guardian_relation: formData.guardian_relation,
+        aadhar_number: formData.aadhar_number
+      }
+    }));
+    navigate('/dashboard');
+  };
+
+  const handleStayOnPage = () => {
+    setShowSuccessModal(false);
+    navigate('/login');
   };
 
   return (
@@ -121,7 +151,7 @@ export default function Signup() {
                     <Select icon={<MapPin size={14} />} label="State" name="state" value={formData.state} onChange={handleChange} options={states.map(s => ({ value: s._id || s.id, label: s.name }))} required />
                     <Select icon={<MapPin size={14} />} label="District" name="district" value={formData.district} onChange={handleChange} options={districts.map(d => ({ value: d._id || d.id, label: d.name }))} required disabled={!formData.state} />
                     <Select icon={<MapPin size={14} />} label="Area" name="area" value={formData.area} onChange={handleChange} options={areas.map(a => ({ value: a._id || a.id, label: a.name }))} required disabled={!formData.district} />
-                    <Input icon={<MapPin size={14} />} label="PIN" name="pin" value={formData.pin} onChange={handleChange} placeholder="Enter PIN code" required />
+                    {/* <Input icon={<MapPin size={14} />} label="PIN" name="pin" value={formData.pin} onChange={handleChange} placeholder="Enter PIN" required /> */}
                   </Section>
 
                   {/* Security */}
@@ -133,9 +163,7 @@ export default function Signup() {
                   {/* Payment */}
                   <Section title="Payment Information" icon={<CreditCard size={18} />}>
                     <Select icon={<CreditCard size={14} />} label="Payment Method" name="payment_method" value={formData.payment_method} onChange={handleChange} options={['cash', 'online']} />
-                    {formData.payment_method === 'cash' && (
-                      <Input icon={<Lock size={14} />} label="PIN" type="password" name="payment_pin" value={formData.payment_pin || ''} onChange={handleChange} placeholder="Enter PIN"  required />
-                    )}
+                    <Input icon={<Lock size={14} />} label="PIN" type="text" name="pin" value={formData.pin} onChange={handleChange} placeholder="Enter PIN" required />
                   </Section>
 
                   {/* Terms */}
@@ -258,6 +286,63 @@ export default function Signup() {
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowTermsModal(false)}>Close</button>
                 <button type="button" className="btn" style={{ backgroundColor: '#8B4513', color: 'white' }} onClick={() => { setFormData(prev => ({ ...prev, terms_accepted: true })); setShowTermsModal(false); }}>Accept Terms</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && registrationData && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" style={{ borderRadius: '1rem' }}>
+              <div className="modal-header border-0 text-center" style={{ backgroundColor: '#28a745', color: 'white' }}>
+                <div className="w-100 text-center">
+                  <CheckCircle size={48} className="mb-2" />
+                  <h5 className="modal-title fw-bold mb-0">Registration Successful!</h5>
+                </div>
+              </div>
+              <div className="modal-body p-4 text-center">
+                <div className="mb-4">
+                  <h6 className="fw-semibold mb-3" style={{ color: '#8B4513' }}>Welcome to Vertex Kalyan Cooperative Society!</h6>
+                  <p className="text-muted mb-3">{registrationData.message}</p>
+                  
+                  <div className="bg-light rounded p-3 mb-4">
+                    <div className="row text-start">
+                      <div className="col-6">
+                        <small className="text-muted">User ID:</small>
+                        <div className="fw-semibold">{registrationData.user.user_id}</div>
+                      </div>
+                      <div className="col-6">
+                        <small className="text-muted">Account No:</small>
+                        <div className="fw-semibold">{registrationData.user.account_number}</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="small text-info mb-4">
+                    <strong>Next Step:</strong> Complete your KYC in the profile section to activate all features.
+                  </p>
+                </div>
+                
+                <div className="d-flex gap-3 justify-content-center">
+                  <button 
+                    type="button" 
+                    className="btn btn-outline-secondary"
+                    onClick={handleStayOnPage}
+                  >
+                    Go to Login
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn text-white fw-semibold"
+                    style={{ backgroundColor: '#8B4513' }}
+                    onClick={handleLoginRedirect}
+                  >
+                    Continue to Dashboard
+                  </button>
+                </div>
               </div>
             </div>
           </div>

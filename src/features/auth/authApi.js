@@ -43,6 +43,28 @@ export const authApi = apiSlice.injectEndpoints({
       providesTags: ['User'],
     }),
     
+    // Get user by ID - matches curl: localhost:8000/api/users/{id}
+    getUserById: builder.query({
+      query: (userId) => ({
+        url: `/users/${userId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, userId) => [{ type: 'User', id: userId }],
+    }),
+    
+    // Update user profile - matches curl: localhost:8000/api/users/profile
+    updateUserProfile: builder.mutation({
+      query: (profileData) => ({
+        url: '/users/profile',
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: profileData,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    
     // Refresh token endpoint
     refreshToken: builder.mutation({
       query: (refreshToken) => ({
@@ -66,6 +88,8 @@ export const {
   useRegisterMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
+  useGetUserByIdQuery,
+  useUpdateUserProfileMutation,
   useRefreshTokenMutation,
   useVerifyTokenQuery,
 } = authApi
